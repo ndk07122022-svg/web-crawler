@@ -14,8 +14,12 @@ COPY . .
 # Build the application
 RUN npm run build
 
+# Copy startup script
+COPY start.sh /app/start.sh
+RUN chmod +x /app/start.sh
+
 # Expose port
 EXPOSE 5173
 
-# Run the application - PORT is handled by vite.config.js
-CMD npm run preview -- --host 0.0.0.0
+# Run the application using startup script
+CMD ["/app/start.sh"]
