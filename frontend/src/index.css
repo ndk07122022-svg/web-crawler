@@ -1,0 +1,137 @@
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #fce4ec; /* Light pink background */
+  color: #333;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+h1 {
+  text-align: center;
+  color: #880e4f; /* Dark pink */
+  margin-bottom: 40px;
+}
+
+.search-box {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
+input {
+  padding: 12px 20px;
+  border: 1px solid #f8bbd0;
+  border-radius: 8px;
+  width: 60%;
+  font-size: 16px;
+  outline: none;
+}
+
+input:focus {
+    border-color: #d81b60;
+}
+
+button {
+  padding: 12px 24px;
+  background-color: #d81b60;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+button:hover {
+  background-color: #ad1457;
+}
+
+button:disabled {
+  background-color: #f48fb1;
+  cursor: not-allowed;
+}
+
+.status-log {
+  background-color: #fff;
+  border: 1px solid #f8bbd0;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 40px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.status-log h3 {
+    margin-top: 0;
+    color: #880e4f;
+}
+
+.logs-container {
+  height: 200px;
+  overflow-y: auto;
+  font-family: monospace;
+  background-color: #fff0f5; /* Lavender blush */
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #fce4ec;
+}
+
+.log-entry {
+  margin-bottom: 5px;
+  font-size: 14px;
+}
+
+.results-section {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.results-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.results-table th, .results-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #fce4ec;
+}
+
+.results-table th {
+  background-color: #fce4ec;
+  color: #880e4f;
+  font-weight: 600;
+}
+
+.results-table tr:hover {
+  background-color: #fff0f5;
+}
+
+.btn.download-btn {
+    background-color: #880e4f;
+    color: white;
+    padding: 8px 16px;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 14px;
+    margin-left: 10px;
+}
+
+.btn.download-btn:hover {
+    background-color: #6a0032;
+}
