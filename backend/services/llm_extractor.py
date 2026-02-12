@@ -79,11 +79,34 @@ def extract_data_with_llm(content_markdown: str, html_content: str, query: str) 
     # 2. Prepare Interactive Elements (HTML for Pagination)
     interactive_html = extract_interactive_elements(html_content)
     
-    system_prompt = """You are an intelligent web scraper. 
-    Your goal is to extract company information relevant to the user's query from the main content area of the page.
+    system_prompt = """You are an intelligent web scraper specialized in extracting SUPPLIER/MANUFACTURER company information.
+    Your goal is to extract ONLY legitimate business suppliers, manufacturers, or service providers that match the user's query.
     
     Task 1: Extract Companies (Use the Markdown Content)
     Extract fields: name, website, description, email, phone, address.
+    
+    STRICT FILTERING RULES - DO NOT EXTRACT:
+    ❌ Buyer requests or "wanted" posts (e.g., "I want supply of...", "Anyone selling...", "Looking for suppliers...")
+    ❌ Error pages (Cloudflare, 404, 403, "Access Denied", "Page Not Found")
+    ❌ Navigation or generic pages ("About Us", "Contact Us", "Home", "Login", "Sign Up")
+    ❌ Generic page titles or website names without actual company details
+    ❌ Forum posts, Q&A requests, or discussion threads
+    ❌ Trade show announcements or event listings (UNLESS they list exhibitor companies with contact details)
+    ❌ News articles or blog posts (UNLESS they contain a company directory/listing)
+    ❌ Social media posts or personal profiles
+    ❌ Government websites, policy pages, or regulation documents
+    
+    ONLY EXTRACT IF:
+    ✅ The content clearly describes a business that SUPPLIES/MANUFACTURES/DISTRIBUTES products or services
+    ✅ The company has identifiable contact information (website, email, phone, or address)
+    ✅ The company name is a proper business name, not a page title or generic phrase
+    ✅ The content is from a business directory, B2B platform, or company profile page
+    
+    VALIDATION:
+    - If the "name" field sounds like a request, question, or generic page title → DO NOT INCLUDE IT
+    - If there's no contact information (no website, email, phone, or address) → DO NOT INCLUDE IT
+    - If it's clearly a buyer looking for suppliers → DO NOT INCLUDE IT
+    - If the page is an error or navigation page → Return empty companies array
     
     Task 2: Identify Pagination (Use the HTML Snippets)
     Look for 'Next', '>', 'Load More', or page numbers in the HTML snippets.
@@ -96,6 +119,8 @@ def extract_data_with_llm(content_markdown: str, html_content: str, query: str) 
         "next_page_url": "...",
         "pagination_selector": "..."
     }
+    
+    IMPORTANT: It's better to return an empty companies array than to include irrelevant or invalid entries.
     """
     
     user_prompt = f"""User Query: {query}
