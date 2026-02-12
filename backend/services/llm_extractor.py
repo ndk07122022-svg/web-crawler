@@ -85,7 +85,8 @@ IMPORTANT: You are looking for COMPANIES LISTED ON THE PAGE, NOT the website its
 
 STEP 1: Read the content carefully
 - Look for company names, business names, supplier names, manufacturer names
-- These are usually in lists, tables, directories, or profiles
+- These can appear in: lists, tables, cards, repeated sections, or profile blocks
+- Look for PATTERNS - if you see similar information repeated, those are likely individual companies
 - Each company is a SEPARATE entry
 
 STEP 2: Extract EACH company you find
@@ -128,12 +129,29 @@ Extract:
   {"name": "Himalaya Cosmetics", "address": "Lalitpur", "email": "info@himalaya.np"}
 ]
 
-Example 3 - Buyer Request (DO NOT EXTRACT):
+Example 3 - Search Results / Card Layout:
+Content: "Company: ABC Corp
+          Location: Kuala Lumpur, Malaysia
+          
+          Company: XYZ Industries  
+          Location: Penang, Malaysia
+          
+          Company: PQR Trading
+          Location: Johor, Malaysia"
+
+Extract:
+[
+  {"name": "ABC Corp", "address": "Kuala Lumpur, Malaysia"},
+  {"name": "XYZ Industries", "address": "Penang, Malaysia"},
+  {"name": "PQR Trading", "address": "Johor, Malaysia"}
+]
+
+Example 4 - Buyer Request (DO NOT EXTRACT):
 Content: "I want cosmetics suppliers in Nepal. Anyone can help?"
 
 Extract: []
 
-Example 4 - Error Page (DO NOT EXTRACT):
+Example 5 - Error Page (DO NOT EXTRACT):
 Content: "Cloudflare - Access Denied"
 
 Extract: []
@@ -150,13 +168,22 @@ Return JSON:
 REMEMBER: Extract INDIVIDUAL COMPANIES from the content, not the website itself.
 """
     
+    # Debug: Print first 500 chars of content to see what LLM is receiving
+    print(f"\n=== LLM EXTRACTOR DEBUG ===")
+    print(f"Query: {query}")
+    print(f"Content length: {len(content_markdown)} chars")
+    print(f"Content preview (first 500 chars):\n{content_markdown[:500]}")
+    print(f"===========================\n")
+    
     user_prompt = f"""User Query: {query}
     
-    --- MARKDOWN CONTENT (For Companies) ---
+    --- WEBPAGE CONTENT (Extract companies from this) ---
     {content_markdown[:15000]}
     
-    --- INTERACTIVE HTML SNIPPETS (For Pagination) ---
+    --- INTERACTIVE ELEMENTS (For pagination) ---
     {interactive_html[:10000]}
+    
+    EXTRACT ALL COMPANIES YOU FIND. Look for repeated patterns of business names with location/contact info.
     """
 
     try:
