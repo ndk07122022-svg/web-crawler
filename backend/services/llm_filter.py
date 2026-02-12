@@ -43,7 +43,7 @@ def filter_search_results(results: List[Dict[str, str]], query: str) -> List[str
     print(f"\nCandidates:\n{candidates}")
     print(f"========================\n")
 
-    system_prompt = f"""You are a URL filter. Your job is to pick URLs that will help find companies matching the user's search.
+    system_prompt = f"""You are a URL filter. Your job is to pick URLs that will help find companies matching the user's search intent.
 
 User is searching for: "{query}"
 

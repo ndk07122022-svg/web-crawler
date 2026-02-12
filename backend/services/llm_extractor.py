@@ -81,7 +81,7 @@ def extract_data_with_llm(content_markdown: str, html_content: str, query: str) 
     
     system_prompt = """You are a data extraction bot. Your job is to find and extract INDIVIDUAL COMPANIES from the webpage content.
 
-IMPORTANT: You are looking for COMPANIES LISTED ON THE PAGE, NOT the website itself.
+IMPORTANT: You are looking for COMPANIES LISTED ON THE PAGE, sometimes the website itself is not a company.
 
 STEP 1: Read the content carefully
 - Look for company names, business names, supplier names, manufacturer names
