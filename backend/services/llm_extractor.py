@@ -79,71 +79,76 @@ def extract_data_with_llm(content_markdown: str, html_content: str, query: str) 
     # 2. Prepare Interactive Elements (HTML for Pagination)
     interactive_html = extract_interactive_elements(html_content)
     
-    system_prompt = """You are an expert web scraper extracting SUPPLIER/MANUFACTURER company information from directories, B2B platforms, and listing pages.
-    
-    YOUR PRIMARY TASK: Extract ALL legitimate businesses from the content that match the user's query.
-    
-    HOW TO IDENTIFY COMPANIES IN LISTINGS:
-    
-    1. BUSINESS DIRECTORIES & B2B PLATFORMS:
-       - Look for structured lists, tables, or repeated patterns of company information
-       - Each entry typically has: company name, and MAY have contact details (website, email, phone, address)
-       - Extract EVERY company entry you find, even if contact info is incomplete
-       - Common patterns: "Company Name | City | Product" or table rows with company details
-    
-    2. COMPANY PROFILE PAGES:
-       - Extract the main company's information
-       - Include all available contact details
-    
-    3. WHAT TO EXTRACT:
-       For each company found:
-       - "name": Official business/company name (NOT page titles like "Home" or "About Us")
-       - "website": Company website URL (if available)
-       - "email": Contact email (if available)
-       - "phone": Phone number (if available)
-       - "address": Physical address or location (city/country at minimum if available)
-       - "description": Brief description of products/services (if available)
-       
-       NOTE: It's OK if some fields are null/empty. Extract the company if you have at least the name and it's clearly a business.
-    
-    DO NOT EXTRACT (Critical - these are NOT companies):
-    ❌ BUYER REQUESTS: Posts asking for suppliers (e.g., "I want supply of...", "Anyone selling...", "Looking for...")
-    ❌ ERROR PAGES: Cloudflare errors, 404, 403, "Access Denied", "Page Not Found"
-    ❌ NAVIGATION: "About Us", "Contact Us", "Home", "Login", "Sign Up" (unless these are actual company names in a listing)
-    ❌ FORUM QUESTIONS: Q&A posts, discussion threads asking for recommendations
-    ❌ PAGE METADATA: Generic website names, categories, or section headings used as company names
-    
-    VALIDATION CHECKLIST:
-    ✓ Is this a real business name? (Not a page title, not a question, not a request)
-    ✓ Does it supply/manufacture/distribute products or services?
-    ✓ If it's from a listing/directory, extract it even with minimal details
-    ✓ Skip if it's clearly a buyer looking for suppliers
-    ✓ Skip if it's an error page or navigation element
-    
-    EXAMPLES OF WHAT TO EXTRACT:
-    ✅ "ABC Cosmetics Ltd - Kathmandu - info@abc.com.np - +977-1-4567890"
-    ✅ "XYZ Trading Company" (even without contact info, if from a business directory)
-    ✅ Table rows listing: Company Name | Location | Product Category
-    ✅ Company cards/listings with partial information
-    
-    EXAMPLES OF WHAT NOT TO EXTRACT:
-    ❌ "I need cosmetics suppliers in Nepal" (buyer request)
-    ❌ "Cloudflare" (error page)
-    ❌ "Home" or "About Us" (navigation)
-    ❌ "Looking for manufacturers" (question/request)
-    
-    Task 2: Identify Pagination
-    Look for 'Next', '>', 'Load More', or page numbers in the HTML snippets.
-    - 'next_page_url': URL from href
-    - 'pagination_selector': CSS selector (e.g. 'a.next-page')
-    
-    Return JSON:
-    {
-        "companies": [...],  // Extract ALL legitimate businesses found
-        "next_page_url": "...",
-        "pagination_selector": "..."
-    }
-    """
+    system_prompt = """You are a data extraction bot. Your job is to find and extract INDIVIDUAL COMPANIES from the webpage content.
+
+IMPORTANT: You are looking for COMPANIES LISTED ON THE PAGE, NOT the website itself.
+
+STEP 1: Read the content carefully
+- Look for company names, business names, supplier names, manufacturer names
+- These are usually in lists, tables, directories, or profiles
+- Each company is a SEPARATE entry
+
+STEP 2: Extract EACH company you find
+For each company, extract:
+- name: The company/business name
+- website: Their website URL (if mentioned)
+- email: Their email (if mentioned)  
+- phone: Their phone (if mentioned)
+- address: Their address/location (if mentioned)
+- description: What they do/sell (if mentioned)
+
+STEP 3: What NOT to extract
+
+DO NOT extract if the text is:
+- A question or request (e.g., "I need suppliers", "Looking for...", "Anyone selling...")
+- An error message (e.g., "Cloudflare", "404", "Access Denied")
+- A page section (e.g., "About Us", "Contact Us", "Home")
+- The website's own name (we want companies LISTED on the page, not the page itself)
+
+EXAMPLES:
+
+Example 1 - Directory Page:
+Content: "1. ABC Cosmetics - Kathmandu - abc@mail.com - Makeup products
+          2. XYZ Beauty Ltd - Pokhara - xyz@mail.com - Skincare"
+
+Extract:
+[
+  {"name": "ABC Cosmetics", "address": "Kathmandu", "email": "abc@mail.com", "description": "Makeup products"},
+  {"name": "XYZ Beauty Ltd", "address": "Pokhara", "email": "xyz@mail.com", "description": "Skincare"}
+]
+
+Example 2 - Table:
+Content: "| Company | City | Contact |
+          | Nepal Beauty Co | Kathmandu | contact@nepal.com |
+          | Himalaya Cosmetics | Lalitpur | info@himalaya.np |"
+
+Extract:
+[
+  {"name": "Nepal Beauty Co", "address": "Kathmandu", "email": "contact@nepal.com"},
+  {"name": "Himalaya Cosmetics", "address": "Lalitpur", "email": "info@himalaya.np"}
+]
+
+Example 3 - Buyer Request (DO NOT EXTRACT):
+Content: "I want cosmetics suppliers in Nepal. Anyone can help?"
+
+Extract: []
+
+Example 4 - Error Page (DO NOT EXTRACT):
+Content: "Cloudflare - Access Denied"
+
+Extract: []
+
+PAGINATION: Also look for "Next", "Load More", or page 2, 3, etc. buttons to help us get more companies.
+
+Return JSON:
+{
+  "companies": [...],
+  "next_page_url": "URL if you find a next page link",
+  "pagination_selector": "CSS selector for next button"
+}
+
+REMEMBER: Extract INDIVIDUAL COMPANIES from the content, not the website itself.
+"""
     
     user_prompt = f"""User Query: {query}
     
